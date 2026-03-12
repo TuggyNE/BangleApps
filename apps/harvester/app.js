@@ -4,6 +4,20 @@ var settings;
 
 // *** XXX: Ensure these are kept in sync between settings.js and app.js ***
 const storage = require('Storage');
+function readSettings() {
+  return storage.readJSON(SETTINGS_FILE, 1) || {};
+}
+function writeSettings (s) {
+  storage.write(SETTINGS_FILE, s);
+}
+function loadSettings() {
+  return normalizeSettings(readSettings());
+}
+function saveSettings(s) {
+  writeSettings(denormalizeSettings(s));
+}
+// *** End manual sync area ***
+// *** XXX: Ensure these are kept in sync between settings.js, interface.html, and app.js ***
 const SETTINGS_FILE = "harvester.json";
 function getDefaultSettings () {
   return {
@@ -29,9 +43,8 @@ function getDefaultSettings () {
     fallow_denominator: 3,
   };
 }
-function loadSettings () {
+function normalizeSettings (s) {
   var def = getDefaultSettings();
-  var s = storage.readJSON(SETTINGS_FILE, 1) || {};
   // TODO: Add per-item normalizer fns
   s.fruitful = s.fruitful || def.fruitful;
   s.decentering = s.decentering || def.decentering;
@@ -44,9 +57,9 @@ function loadSettings () {
   s.cur_mode = s.cur_mode || def.cur_mode;
   return s;
 }
-function saveSettings (s) {
+function denormalizeSettings (s) {
   delete s.hr_12; // TODO: Allow setting this independently
-  storage.write(SETTINGS_FILE, s);
+  return s;
 }
 // *** End manual sync area ***
 
